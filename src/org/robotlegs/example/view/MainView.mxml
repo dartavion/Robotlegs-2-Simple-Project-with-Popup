@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         implements="org.robotlegs.example.view.api.IMainView">
+
+    <s:layout>
+        <s:VerticalLayout />
+    </s:layout>
+
+    <fx:Script>
+        <![CDATA[
+        import mx.core.FlexGlobals;
+        import mx.managers.PopUpManager;
+
+        import org.robotlegs.example.view.events.GetSomeTextEvent;
+        import org.robotlegs.example.view.events.OpenPopupEvent;
+
+        import robotlegs.bender.extensions.viewManager.api.IViewManager;
+
+        import spark.components.TitleWindow;
+
+        private var _returnText:String;
+
+        [Inject]
+        public var viewManager:IViewManager;
+
+        public function get returnText():String {
+            return _returnText;
+        }
+
+        [Bindable]
+        public function set returnText(value:String):void {
+            _returnText = value;
+        }
+
+        public function goGetSomeText():void {
+            trace("1. Dispatch from a click to the Mediator::::: ");
+            this.dispatchEvent(new GetSomeTextEvent(GetSomeTextEvent.GET_SOME_TEXT, "hello"));
+        }
+
+        private function openPopup(event:MouseEvent):void {
+//            var newReportWindow:TitleWindow = new NewWindow();
+//            viewManager.addContainer(newReportWindow);
+//            PopUpManager.addPopUp(newReportWindow, FlexGlobals.topLevelApplication as DisplayObject);
+//            PopUpManager.centerPopUp(newReportWindow);
+            dispatchEvent(new OpenPopupEvent(OpenPopupEvent.OPEN));
+        }
+        ]]>
+    </fx:Script>
+
+    <s:TextArea text="{returnText}" />
+    <s:Button label="Ciao!!!" click="goGetSomeText()" />
+    <s:Button label="Open Popup" click="openPopup(event)"/>
+
+</s:Group>

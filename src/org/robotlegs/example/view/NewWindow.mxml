@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+               xmlns:s="library://ns.adobe.com/flex/spark"
+               implements="org.robotlegs.example.view.api.INewWindow"
+               close="closeHandler(event)">
+
+    <fx:Script>
+        <![CDATA[
+        import mx.events.CloseEvent;
+        import mx.managers.PopUpManager;
+
+        import org.robotlegs.example.view.events.GetSomeTextEvent;
+
+        private var _helloMessage:String;
+
+        public function sayHello(event:MouseEvent):void {
+            this.dispatchEvent(new GetSomeTextEvent(GetSomeTextEvent.GET_SOME_TEXT, "hello"));
+        }
+
+        private function closeHandler(event:CloseEvent):void {
+            PopUpManager.removePopUp(this);
+        }
+
+        public function get helloMessage():String {
+            return _helloMessage;
+        }
+
+        public function set helloMessage(value:String):void {
+            _helloMessage = value;
+        }
+        ]]>
+    </fx:Script>
+
+    <s:layout>
+        <s:VerticalLayout paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" />
+    </s:layout>
+
+    <s:TextArea width="100%" height="100%" id="helloWindow" text="{helloMessage}" />
+
+    <s:Button label="Say Hello!" click="sayHello(event)" />
+
+</s:TitleWindow>
