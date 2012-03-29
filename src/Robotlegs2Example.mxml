@@ -6,17 +6,14 @@
                xmlns:example="org.robotlegs.example.*"
                xmlns:views="org.robotlegs.example.view.*">
 
-    <fx:Script>
-        <![CDATA[
-
-        ]]>
-    </fx:Script>
     <fx:Declarations>
         <rl2:ContextBuilderTag>
+            <example:LoggerConfig/>
             <mvcs:MVCSBundle/>
 			<example:AppConfig />
 		</rl2:ContextBuilderTag>
     </fx:Declarations>
 
-    <views:MainView />
+    <views:MainView width="100%" height="100%" />
+
 </s:Application>

@@ -21,6 +21,7 @@
 
         private var _returnText:String;
 
+        // note: can not inject here - RL does not inject into views by default
         [Inject]
         public var viewManager:IViewManager;
 

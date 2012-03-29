@@ -20,8 +20,9 @@ package org.robotlegs.example.view.mediator {
 
     import robotlegs.bender.bundles.mvcs.impl.Mediator;
     import robotlegs.bender.extensions.viewManager.api.IViewManager;
+	import robotlegs.bender.framework.logging.api.ILogger;
 
-    import spark.components.TitleWindow;
+	import spark.components.TitleWindow;
 
 
     public class MainViewMediator extends Mediator {
@@ -32,17 +33,27 @@ package org.robotlegs.example.view.mediator {
         [Inject]
         public var viewManager:IViewManager;
 
+		[Inject]
+		public var logger:ILogger;
+
         public function MainViewMediator() {
             super();
         }
 
         override public function initialize():void {
+			logger.debug("initialize");
             addViewListener(GetSomeTextEvent.GET_SOME_TEXT, handleGetText, GetSomeTextEvent);
             addContextListener(ExampleModelUpdate.MODEL_UPDATED, handleModelUpdate, ExampleModelUpdate)
             addViewListener(OpenPopupEvent.OPEN, onOpenPopup, OpenPopupEvent);
         }
 
-        private function onOpenPopup(event:OpenPopupEvent):void {
+		override public function destroy():void
+		{
+			logger.debug("destroy");
+			super.destroy();
+		}
+
+		private function onOpenPopup(event:OpenPopupEvent):void {
             var newReportWindow:TitleWindow = new NewWindow();
             viewManager.addContainer(newReportWindow);
             PopUpManager.addPopUp(newReportWindow, FlexGlobals.topLevelApplication as DisplayObject);
@@ -50,12 +61,12 @@ package org.robotlegs.example.view.mediator {
         }
 
         private function handleGetText(event:GetSomeTextEvent):void {
-            trace("2. Redundant dispatch it seems::::: ");
+            logger.debug("2. Redundant dispatch it seems::::: ");
             dispatch(event);
         }
 
         private function handleModelUpdate(event:ExampleModelUpdate):void {
-            trace("8. Listen to the Context for changes in the event map. " +
+			logger.debug("8. Listen to the Context for changes in the event map. " +
                     "Then lets catch the answer in the Main View Mediator and pass it to the Main View::::: " + event.model.answer);
             view.returnText = event.model.answer;
         }
