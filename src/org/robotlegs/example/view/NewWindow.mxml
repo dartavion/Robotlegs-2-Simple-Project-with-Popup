@@ -21,6 +21,7 @@
             PopUpManager.removePopUp(this);
         }
 
+        [Bindable]
         public function get helloMessage():String {
             return _helloMessage;
         }

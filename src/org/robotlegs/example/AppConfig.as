@@ -5,74 +5,59 @@
  * Time: 1:36 PM
  * To change this template use File | Settings | File Templates.
  */
-package org.robotlegs.example {
-    import flash.display.DisplayObject;
-    import flash.display.DisplayObjectContainer;
+package org.robotlegs.example
+{
+	import flash.display.DisplayObjectContainer;
+	import org.robotlegs.example.controller.GetSomeTextCommand;
+	import org.robotlegs.example.model.ExampleModel;
+	import org.robotlegs.example.service.ExampleService;
+	import org.robotlegs.example.service.IExampleService;
+	import org.robotlegs.example.view.MainView;
+	import org.robotlegs.example.view.api.IMainView;
+	import org.robotlegs.example.view.api.INewWindow;
+	import org.robotlegs.example.view.events.GetSomeTextEvent;
+	import org.robotlegs.example.view.mediator.MainViewMediator;
+	import org.robotlegs.example.view.mediator.NewWindowMediator;
+	import org.swiftsuspenders.Injector;
+	import robotlegs.bender.extensions.eventCommandMap.api.IEventCommandMap;
+	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
+	import spark.components.Application;
 
-    import org.as3commons.logging.level.DEBUG;
+	public class AppConfig
+	{
 
-    import org.hamcrest.object.instanceOf;
+		/*============================================================================*/
+		/* Public Properties                                                          */
+		/*============================================================================*/
 
-    import org.robotlegs.example.controller.GetSomeTextCommand;
-    import org.robotlegs.example.model.ExampleModel;
-    import org.robotlegs.example.service.ExampleService;
-    import org.robotlegs.example.service.IExampleService;
-    import org.robotlegs.example.view.MainView;
-    import org.robotlegs.example.view.api.INewWindow;
-    import org.robotlegs.example.view.mediator.MainViewMediator;
-    import org.robotlegs.example.view.api.IMainView;
-    import org.robotlegs.example.view.events.GetSomeTextEvent;
-    import org.robotlegs.example.view.mediator.NewWindowMediator;
+		[Inject]
+		public var injector:Injector;
 
-    import org.swiftsuspenders.Injector;
+		[Inject]
+		public var mediatorMap:IMediatorMap;
 
-    import robotlegs.bender.extensions.eventCommandMap.api.IEventCommandMap;
-    import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
-    import robotlegs.bender.framework.context.api.IContext;
-    import robotlegs.bender.framework.context.api.IContextExtension;
+		[Inject]
+		public var commandMap:IEventCommandMap;
 
-    import spark.components.Application;
+		/*============================================================================*/
+		/* Public Functions                                                           */
+		/*============================================================================*/
 
-    use namespace DEBUG;
+		[PostConstruct]
+		public function init():void
+		{
+			// View
+			mediatorMap.mapView(IMainView).toMediator(MainViewMediator);
+			mediatorMap.mapView(INewWindow).toMediator(NewWindowMediator);
 
-    public class AppConfig implements IContextExtension{
-        private var injector : Injector;
-        private var mediatorMap:IMediatorMap;
-        private var commandMap:IEventCommandMap;
+			// Model
+			injector.map(ExampleModel);
 
-        private var _context:IContext;
+			// service
+			injector.map(IExampleService).toSingleton(ExampleService);
 
-
-        public function extend(context:IContext):void {
-            _context = context;
-            context.logLevel = DEBUG;
-            context.addConfigHandler(instanceOf(DisplayObject), handleContextView);
-        }
-
-        private function handleContextView(contextView:DisplayObjectContainer):void {
-
-
-            injector = _context.injector;
-            mediatorMap = injector.getInstance(IMediatorMap);
-            commandMap = injector.getInstance(IEventCommandMap);
-
-            // View
-            mediatorMap.mapView(IMainView).toMediator(MainViewMediator);
-            mediatorMap.mapView(INewWindow).toMediator(NewWindowMediator);
-
-            // Model
-            injector.map(ExampleModel);
-
-            // service
-            injector.map(IExampleService).toSingleton(ExampleService);
-
-            // controller
-            commandMap.map(GetSomeTextEvent.GET_SOME_TEXT, GetSomeTextEvent).toCommand(GetSomeTextCommand);
-
-            const main:MainView = new MainView();
-            main.percentWidth = 100;
-            main.percentHeight = 100;
-            Application(contextView).addElement(main);
-        }
-    }
+			// controller
+			commandMap.map(GetSomeTextEvent.GET_SOME_TEXT, GetSomeTextEvent).toCommand(GetSomeTextCommand);
+		}
+	}
 }

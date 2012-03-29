@@ -14,11 +14,16 @@ package org.robotlegs.example.service {
     import flash.net.URLLoader;
     import flash.net.URLRequest;
 
-    public class ExampleService extends BaseActor implements IExampleService{
+	import robotlegs.bender.framework.logging.api.ILogger;
+
+	public class ExampleService extends BaseActor implements IExampleService{
         private var urlLoader:URLLoader;
 
         [Inject]
         public var exampleModel:ExampleModel;
+
+		[Inject]
+		public var logger:ILogger;
 
         public function ExampleService() {
             super();
@@ -35,7 +40,7 @@ package org.robotlegs.example.service {
 
         private function onLoadTreeComplete(event:Event):void {
             if (urlLoader.data) {
-                trace("4. We're now in the service onComplete::::::::");
+				logger.debug("4. We're now in the service onComplete::::::::");
                 // this import collides with the Flex SDK's implementation of JSON support for AIR apps
                 // we're using as3corelib to support json
                 var jsonObject:Object = JSON.parse(urlLoader.data);
@@ -44,7 +49,7 @@ package org.robotlegs.example.service {
         }
 
         private function onLoadTreeIOError(event:IOErrorEvent):void {
-             trace("ERROR")
+			logger.error("ERROR")
         }
 
     }
