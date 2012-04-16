@@ -1,10 +1,3 @@
-/**
- * Created by IntelliJ IDEA.
- * User:
- * Date: 2/21/12
- * Time: 2:19 PM
- * To change this template use File | Settings | File Templates.
- */
 package org.robotlegs.example.view.mediator {
     import flash.display.DisplayObject;
 

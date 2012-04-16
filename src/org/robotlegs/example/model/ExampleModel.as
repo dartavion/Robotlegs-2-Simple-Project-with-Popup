@@ -1,10 +1,3 @@
-/**
- * Created by IntelliJ IDEA.
- * User:
- * Date: 2/21/12
- * Time: 2:02 PM
- * To change this template use File | Settings | File Templates.
- */
 package org.robotlegs.example.model {
     import org.robotlegs.example.base.BaseActor;
     import org.robotlegs.example.model.event.ExampleModelUpdate;
