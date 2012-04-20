@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="4. Build and Deploy to Local Server" name="Reflex Systems Query Builder">
+    <!-- references: http://www.unitedmindset.com/jonbcampos/2010/02/02/run-flex-unit-tests-from-ant/ -->
+    <!-- http://www.funky-monkey.nl/blog/2011/10/14/i-proudly-present-automating-your-actionscript-projects-with-eclipse-and-ant/ -->
+
+    <!-- Build Properties -->
+    <property file="build.properties" />
+    <!-- Flex Tasks -->
+    <property name="FLEX_TASKS" resource="flexTasks.tasks" value="${FLEX_HOME}${file.separator}${FlexTasks.file}"/>
+
+    <!-- Use the Flex ANT tasks for easier compilation -->
+    <taskdef name="mxmlc" classname="flex.ant.MxmlcTask" classpath="${FLEX_TASKS}"/>
+    <!-- Reference of the Flex Unit Tasks -->
+    <taskdef resource="flexUnitTasks.tasks" classpath="${FlexUnitTasks.file}"/>
+    <!-- Build the html page for the swf -->
+    <taskdef name="html-wrapper" classname="flex.ant.HtmlWrapperTask" classpath="${FLEX_TASKS}"/>
+    <!-- Growl messaging. Comment out this and the references to growl -->
+    <!--<taskdef name="growl" classname="net.slimeslurp.growl.GrowlEcho" />-->
+
+    <!-- An example for using the Growl messaging system -->
+    <target name="Creates a timestamp">
+        <tstamp>
+            <format property="current.date.time" pattern="dd_MM_yyyy_HH_mm" />
+        </tstamp>
+        <growl message="Custom Timestamp: ${current.date.time}" />
+        <growl message="Base Directory: ${basedir}" />
+    </target>
+
+    <!-- Clean existing directories and wrapper -->
+    <target name="1. Cleanup Directories" description="clean up">
+        <delete dir="${debug_dir}"/>
+        <delete dir="${publish_dir}"/>
+        <delete dir="${build_dir}"/>
+    </target>
+
+    <!-- Create required directories -->
+    <target name="2. Build New Directories" depends="1. Cleanup Directories">
+        <mkdir dir="${build_dir}"/>
+        <mkdir dir="${debug_dir}"/>
+        <mkdir dir="${publish_dir}${file.separator}${assets_dir_name}"/>
+        <mkdir dir="${publish_dir}${file.separator}${js_dir}"/>
+        <copy includeemptydirs="true" todir="${publish_dir}${file.separator}${assets_dir_name}">
+            <fileset dir="${assets_path}" />
+        </copy>
+        <copy includeemptydirs="true" todir="${publish_dir}${file.separator}${js_dir}">
+            <fileset dir="${js_path}" />
+        </copy>
+        <copy todir="${publish_dir}">
+            <fileset file="${class_path}${file.separator}inventory.html" />
+        </copy>
+        <copy todir="${publish_dir}">
+            <fileset file="${class_path}${file.separator}inventory1.html" />
+        </copy>
+        <copy todir="${publish_dir}">
+            <fileset file="${class_path}${file.separator}named.html" />
+        </copy>
+        <copy todir="${publish_dir}">
+            <fileset file="${class_path}${file.separator}property.html" />
+        </copy>
+        <copy todir="${publish_dir}">
+            <fileset file="${class_path}${file.separator}indexTest.html" />
+        </copy>
+        <copy todir="${publish_dir}">
+            <fileset file="index-js.html" />
+        </copy>
+    </target>
+
+    <!-- Compile SWF to build-directory for packaging -->
+    <!-- configname is the trick 'airmobile', 'flex', 'air'-->
+    <target name="3. Build Directories and Wrapper" depends="2. Build New Directories">
+        <mxmlc
+                file="${main_class}"
+                output="${output_loc}"
+                locale="${locale}"
+                static-rsls="false"
+                accessible="false"
+                configname="flex"
+                debug="${debug_mode}"
+                failonerror="true"
+                optimize="true"
+                fork="true"
+                maxmemory="512m">
+            <arg value="-load-config=flex-config.xml"/>
+
+        </mxmlc>
+        <html-wrapper
+                title="${title}"
+                file="${file}"
+                height="${height}"
+                width="${width}"
+                application="${application}"
+                swf="${swf}"
+                history="${history}"
+                output="${publish_dir}"/>
+    </target>
+
+    <target name="4. Build and Deploy to Local Server" depends="3. Build Directories and Wrapper, Creates a timestamp">
+        <delete dir="${deploy_to_web_server}"/>
+        <copy todir="${deploy_to_web_server}">
+            <fileset dir="${publish_dir}" />
+        </copy>
+    </target>
+
+    <target name="5. Run unit tests" depends="4. Build and Deploy to Local Server, 2. Build New Directories, cleanFlexUnitReport,cleanTest,compileTestRunner,executeTestRunner">
+        <echo>Compiling Test Runner SWF To Test</echo>
+        <mxmlc file="${TestRunnerSrc.dir}${file.separator}${TestRunner.name}.mxml"
+               output="${Test.dir}/${TestRunner.name}.swf">
+            <load-config filename="${FLEX_HOME}${file.separator}frameworks${file.separator}flex-config.xml"/>
+            <compiler.source-path path-element="${class_path}" />
+            <compiler.library-path dir="${basedir}${file.separator}" append="true">
+                <include name="${debug_dir}"/>
+            </compiler.library-path>
+            <compiler.library-path dir="${TestRunnerLib.dir}" append="true">
+                <include name="*.swc"/>
+            </compiler.library-path>
+            <compiler.verbose-stacktraces>true</compiler.verbose-stacktraces>
+            <compiler.headless-server>true</compiler.headless-server>
+        </mxmlc>
+        <echo>Compiled Test Runner SWF To Test</echo>
+    </target>
+    <!-- helpers -->
+    <target name="cleanFlexUnitReport" description="Cleans the Report file">
+        <echo>Deleting FlexUnit Report Directory...</echo>
+        <delete dir="${FlexUnitReport.dir}" failOnError="false"
+                includeEmptyDirs="true" />
+        <echo>Deleted FlexUnit Report Directory</echo>
+        <echo>Creating FlexUnit Report Directory...</echo>
+        <mkdir dir="${FlexUnitReport.dir}" />
+        <echo>Created FlexUnit Report Directory</echo>
+    </target>
+
+    <target name="cleanTest" description="Cleans the Test file">
+        <echo>Deleting Test Directory...</echo>
+        <delete dir="${Test.dir}" failOnError="false"
+                includeEmptyDirs="true" />
+        <echo>Deleted Test Directory</echo>
+        <echo>Creating Test Directory...</echo>
+        <mkdir dir="${Test.dir}" />
+        <echo>Created Test Directory</echo>
+    </target>
+
+    <target name="compileTestRunner">
+        <echo>Compiling Test Runner SWF To Test</echo>
+        <mxmlc file="${TestRunnerSrc.dir}/${TestRunner.name}.mxml"
+               output="${Test.dir}/${TestRunner.name}.swf">
+            <load-config filename="${FLEX_HOME}/frameworks/flex-config.xml"/>
+            <compiler.source-path path-element="${class_path}" />
+            <compiler.library-path dir="${basedir}/" append="true">
+                <include name="${DeploySWC.dir}"/>
+            </compiler.library-path>
+            <compiler.library-path dir="${TestRunnerLib.dir}" append="true">
+                <include name="*.swc"/>
+            </compiler.library-path>
+            <compiler.verbose-stacktraces>true</compiler.verbose-stacktraces>
+            <compiler.headless-server>true</compiler.headless-server>
+        </mxmlc>
+        <echo>Compiled Test Runner SWF To Test</echo>
+    </target>
+
+    <target name="executeTestRunner" description="executes the test runner app">
+        <echo>Running Test Runner SWF</echo>
+        <flexunit swf="${Test.dir}${file.separator}${TestRunner.name}.swf"
+                  toDir="${FlexUnitReport.dir}"
+                  haltonfailure="false"
+                  verbose="true"
+                  localTrusted="true" />
+        <echo>Ran Test Runner SWF</echo>
+
+        <echo>Generate Readable Tests</echo>
+        <junitreport todir="${FlexUnitReport.dir}">
+            <fileset dir="${FlexUnitReport.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${FlexUnitReport.dir}/html"/>
+        </junitreport>
+        <echo>Generated Readable Tests</echo>
+    </target>
+
+
+
+
+</project>
