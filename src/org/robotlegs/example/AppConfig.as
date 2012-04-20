@@ -51,7 +51,6 @@ package org.robotlegs.example {
 
         private function handleContextView(contextView:DisplayObjectContainer):void {
 
-
             injector = _context.injector;
             mediatorMap = injector.getInstance(IMediatorMap);
             commandMap = injector.getInstance(IEventCommandMap);
@@ -72,6 +71,7 @@ package org.robotlegs.example {
             const main:MainView = new MainView();
             main.percentWidth = 100;
             main.percentHeight = 100;
+
             Application(contextView).addElement(main);
         }
     }

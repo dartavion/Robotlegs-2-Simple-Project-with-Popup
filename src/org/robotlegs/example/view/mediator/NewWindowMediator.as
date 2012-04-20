@@ -9,9 +9,8 @@ package org.robotlegs.example.view.mediator {
     import org.robotlegs.example.model.event.ExampleModelUpdate;
     import org.robotlegs.example.view.api.INewWindow;
     import org.robotlegs.example.view.events.GetSomeTextEvent;
-    import org.robotlegs.example.view.events.OpenPopupEvent;
 
-    import robotlegs.bender.bundles.mvcs.impl.Mediator;
+    import robotlegs.bender.bundles.mvcs.Mediator;
 
     public class NewWindowMediator extends Mediator{
         [Inject]

@@ -9,7 +9,6 @@ package org.robotlegs.example.view.mediator {
     import flash.display.DisplayObject;
 
     import mx.core.FlexGlobals;
-
     import mx.managers.PopUpManager;
 
     import org.robotlegs.example.model.event.ExampleModelUpdate;
@@ -18,11 +17,10 @@ package org.robotlegs.example.view.mediator {
     import org.robotlegs.example.view.events.GetSomeTextEvent;
     import org.robotlegs.example.view.events.OpenPopupEvent;
 
-    import robotlegs.bender.bundles.mvcs.impl.Mediator;
+    import robotlegs.bender.bundles.mvcs.Mediator;
     import robotlegs.bender.extensions.viewManager.api.IViewManager;
 
     import spark.components.TitleWindow;
-
 
     public class MainViewMediator extends Mediator {
 
@@ -38,26 +36,35 @@ package org.robotlegs.example.view.mediator {
 
         override public function initialize():void {
             addViewListener(GetSomeTextEvent.GET_SOME_TEXT, handleGetText, GetSomeTextEvent);
-            addContextListener(ExampleModelUpdate.MODEL_UPDATED, handleModelUpdate, ExampleModelUpdate)
+            addContextListener(ExampleModelUpdate.MODEL_UPDATED, handleModelUpdate, ExampleModelUpdate);
             addViewListener(OpenPopupEvent.OPEN, onOpenPopup, OpenPopupEvent);
+        }
+
+        private function handleGetText(event:GetSomeTextEvent):void {
+            trace("2. Dispatch::::: ");
+            dispatch(event);
         }
 
         private function onOpenPopup(event:OpenPopupEvent):void {
             var newReportWindow:TitleWindow = new NewWindow();
             viewManager.addContainer(newReportWindow);
+
+            //context.addConfigHandler(instanceOf(DisplayObject), handleContextView);
+
             PopUpManager.addPopUp(newReportWindow, FlexGlobals.topLevelApplication as DisplayObject);
             PopUpManager.centerPopUp(newReportWindow);
-        }
-
-        private function handleGetText(event:GetSomeTextEvent):void {
-            trace("2. Redundant dispatch it seems::::: ");
-            dispatch(event);
         }
 
         private function handleModelUpdate(event:ExampleModelUpdate):void {
             trace("8. Listen to the Context for changes in the event map. " +
                     "Then lets catch the answer in the Main View Mediator and pass it to the Main View::::: " + event.model.answer);
             view.returnText = event.model.answer;
+        }
+
+        override public function destroy():void {
+            removeViewListener(GetSomeTextEvent.GET_SOME_TEXT, handleGetText, GetSomeTextEvent);
+            removeContextListener(ExampleModelUpdate.MODEL_UPDATED, handleModelUpdate, ExampleModelUpdate);
+            removeViewListener(OpenPopupEvent.OPEN, onOpenPopup, OpenPopupEvent);
         }
     }
 }

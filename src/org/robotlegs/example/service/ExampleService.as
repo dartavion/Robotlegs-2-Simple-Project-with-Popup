@@ -6,6 +6,8 @@
  * To change this template use File | Settings | File Templates.
  */
 package org.robotlegs.example.service {
+    import com.adobe.serialization.json.JSON;
+
     import org.robotlegs.example.base.BaseActor;
     import org.robotlegs.example.model.ExampleModel;
 
@@ -38,7 +40,7 @@ package org.robotlegs.example.service {
                 trace("4. We're now in the service onComplete::::::::");
                 // this import collides with the Flex SDK's implementation of JSON support for AIR apps
                 // we're using as3corelib to support json
-                var jsonObject:Object = JSON.parse(urlLoader.data);
+                var jsonObject:Object = com.adobe.serialization.json.JSON.decode(urlLoader.data);
                 exampleModel.createMessage(jsonObject);
             }
         }

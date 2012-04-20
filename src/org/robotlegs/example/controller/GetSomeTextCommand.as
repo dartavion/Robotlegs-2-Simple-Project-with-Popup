@@ -9,7 +9,9 @@ package org.robotlegs.example.controller {
     import org.robotlegs.example.service.IExampleService;
     import org.robotlegs.example.view.events.GetSomeTextEvent;
 
-    public class GetSomeTextCommand {
+    import robotlegs.bender.bundles.mvcs.Command;
+
+    public class GetSomeTextCommand extends Command{
 
         [Inject]
         public var event:GetSomeTextEvent;
@@ -17,7 +19,7 @@ package org.robotlegs.example.controller {
         [Inject]
         public var service:IExampleService;
         
-        public function execute():void{
+        override public function execute():void{
             trace("3. Now we're in the command which will then tell the service to load data:::::::::")
             service.load();
         }
